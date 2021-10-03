@@ -1,0 +1,4 @@
+login,fname,lname,email,department,manager
+sumit@exampletoday.com,Sumit,Tiwari,sumit@exampletoday.com,IT,Soham
+puneet@exampletoday.com,Puneet,Bhatnagar,puneet@exampletoday.com,HR,Sumit
+rakesh@exampletoday.com,Rakesh,Balakrishnan,rakesh@exampletoday.com,Networks,Puneet
