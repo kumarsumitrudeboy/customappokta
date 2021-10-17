@@ -7,7 +7,11 @@ var csvParser = require('csv-parser');
 const path = require('path');
 
 app.get('/',(req, res)=>res.send("Homepage"));
-app.get('/login',(req, res)=>res.send("Login"));
+app.get('/login',(req, res)=>res.sendFile(path.join(__dirname,'login.html')));
+app.post('/loginhandler',(req,res) => {
+    console.log(req.body);
+    res.send("Login endpoint")
+});
 app.get('/logout',(req, res)=>res.send("Logout"));
 app.get('/register',(req, res)=>res.sendFile(path.join(__dirname,'register.html')));
 app.post('/createuser',(req, res)=>{

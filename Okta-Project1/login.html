@@ -42,13 +42,26 @@
     <form>
         <div class="form-group">
             <label>Username</label>
-            <input type="text" placeholder="Ex: Sumit@example.com" />
+            <input type="text" placeholder="Ex: Sumit@example.com" id="username" />
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input type="text" />
+            <input type="password" id="password" />
         </div>
-        <div class="form-group"><button type="submit">Login</button></div>
+        <div class="form-group"><button type="submit" onclick="event.preventDefault();login();">Login</button></div>
     </form>
+
+    <script>
+        function login () {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            const xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("POST","http://localhost:3000/loginhandler",true)
+            xmlhttp.send(`username=${username}&password=${password}`)
+            xmlhttp.onload = function() {
+                console.log(this.responseText);
+            }
+        }
+    </script>
 </body>
 </html>
