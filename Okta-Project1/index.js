@@ -20,55 +20,26 @@ app.post('/loginhandler',(req,res) => {
     /*
     const username = req.body.username;
     const password = req.body.password;
-    */
-    //Implement Auth SDK
-    const authClient = new OktAuth.OktaAuth({
-        issuer: `${process.env.ISSUER}`, //Issuer url of auth server of okta
-        url:`${process.env.BASEURL}`, //Okta Org URL: "https://dev-2568829.okta.com"
-        clientId:`${process.env.CLIENTID}`, //client id of the app: 0oa27l3tk6YvkXdit5d7
-        redirectUri:`${process.env.REDIRECTURI}`, //Redirect uri of the application
-        tokenManager: {
-            storage: 'sessionStorage'
-        }
-    });
 
-    //Checking for redirect from Okta
-    if(authClient.isLoginRedirect()){
-        //Parse the token
-        authClient.token.parseFromUrl()
-        .then(data => {
-            const {idToken} = data.tokens; //const idToken = data.tokens.idToken
-            console.log(idToken);
-            //Save to token manager
-            authClient.tokenManager.add('idToken',idToken)
-        })
-        .catch(error => console.log(error))
-    }else{
-        //Retrieve the id token from token manager
-        authClient.tokenManager.get('idToken')
-        .then(idToken => {
-            if(idToken){
-                //to claim user is logged in
-                res.redirect('http://localhost:3000')
-            }else{
-                //User is not logged in and we want to force user to login
-                authClient.signInWithCredentials({username,password})
-                .then(transaction => {
-                    if(transaction.status==='SUCCESS'){
-                    //     authClient.token.getWithRedirect({
-                    //         sessionToken: transaction.sessionToken,
-                    //         responseType:'id_token' //implicit
-                    //     })
-                    //     .then(loginResponse => res.redirect('http://localhost:3000'))
-                    //     .catch(error=>console.log(error))
-                    authClient.session.setCookieAndRedirect(transaction.sessionToken)
-                    }
-                })
-                .catch()
-            }
-        })
-        .catch(error => console.log(error))
+    
+    */
+    var myMemoryStore = {};
+    const storageProvider = {
+      getItem: function(key) {
+        // custom get
+        return myMemoryStore[key];
+      },
+      setItem: function(key, val) {
+        // custom set
+        myMemoryStore[key] = val;
+      },
+      // optional
+      removeItem: function(key) {
+        delete myMemoryStore[key];
+      }
     }
+    
+    
 });
 app.get('/logout',(req, res)=>res.send("Logout"));
 app.get('/register',(req, res)=>res.sendFile(path.join(__dirname,'register.html')));

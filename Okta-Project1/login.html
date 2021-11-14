@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://global.oktacdn.com/okta-auth-js/4.5.0/okta-auth-js.min.js" type="text/javascript"></script>
     <title>MyApp - Register</title>
     <style>
         body{
@@ -55,13 +56,68 @@
         function login () {
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
-            const xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("POST","http://localhost:3000/loginhandler",true)
-            xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xmlhttp.send(`username=${username}&password=${password}`)
-            xmlhttp.onload = function() {
-                console.log(this.responseText);
+            // const xmlhttp = new XMLHttpRequest();
+            // xmlhttp.open("POST","http://localhost:3000/loginhandler",true)
+            // xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            // xmlhttp.send(`username=${username}&password=${password}`)
+            // xmlhttp.onload = function() {
+            //     console.log(this.responseText);
+            // }
+
+            //Implement Auth SDK
+    const authClient = new OktaAuth({
+        issuer: `https://dev-2568829.okta.com/oauth2/default`, //Issuer url of auth server of okta
+        url:`https://dev-2568829.okta.com`, //Okta Org URL: "https://dev-2568829.okta.com"
+        clientId:`0oa27l3tk6YvkXdit5d7`, //client id of the app: 0oa27l3tk6YvkXdit5d7
+        redirectUri:`http://localhost:3000/login`, //Redirect uri of the application
+        // authParams:{
+        //     pkce:true
+        // }
+    });
+
+    //Checking for redirect from Okta
+    if(authClient.isLoginRedirect()){
+        console.log("this is login redirect")
+        //Parse the token
+        authClient.token.parseFromUrl()
+        .then(data => {
+            const {idToken} = data.tokens; //const idToken = data.tokens.idToken
+            console.log(idToken);
+            //Save to token manager
+            authClient.tokenManager.add('idToken',idToken)
+            window.location.replace('http://localhost:3000')
+        })
+        .catch(error => console.log(error))
+    }else{
+        //Retrieve the id token from token manager
+        console.log("Checking if user has id token already")
+        authClient.tokenManager.get('idToken')
+        .then(idToken => {
+            if(idToken){
+                //to claim user is logged in
+                console.log("token found")
+                window.location.replace('http://localhost:3000')
+            }else{
+                //User is not logged in and we want to force user to login
+                console.log("No token, prompted for credentials")
+                authClient.signInWithCredentials({username,password})
+                .then(transaction => {
+                    if(transaction.status==='SUCCESS'){
+                        authClient.token.getWithRedirect({
+                            sessionToken: transaction.sessionToken,
+                            responseType:'code' //implicit
+                        })
+                        .then((loginResponse) =>{ console.log(loginResponse);
+                        window.location.replace('http://localhost:3000')})
+                        .catch(error=>console.log(error))
+                    //authClient.session.setCookieAndRedirect(transaction.sessionToken)
+                    }
+                })
+                .catch(error => console.log(error))
             }
+        })
+        .catch(error => console.log(error))
+    }
         }
     </script>
 </body>
